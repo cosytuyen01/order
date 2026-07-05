@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { ReminderProvider } from './context/ReminderContext'
 import MobileShell from './components/MobileShell'
 import ProtectedRoute from './components/ProtectedRoute'
 import LoginPage from './pages/LoginPage'
@@ -16,7 +17,8 @@ import SettingsPage from './pages/SettingsPage'
 export default function App() {
   return (
     <AuthProvider>
-      <MobileShell>
+      <ReminderProvider>
+        <MobileShell>
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
@@ -39,6 +41,7 @@ export default function App() {
           </Routes>
         </BrowserRouter>
       </MobileShell>
+      </ReminderProvider>
     </AuthProvider>
   )
 }

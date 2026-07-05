@@ -2,18 +2,23 @@ import { useEffect, useState } from 'react'
 import { doc, onSnapshot, setDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { useAuth } from '../context/AuthContext'
+import { useReminderBanner } from '../context/ReminderContext'
 import { useBirds } from '../hooks/useBirds'
 import { useAllBirdSchedules } from '../hooks/useAllBirdSchedules'
 import {
   getTodayRemindersPreview,
   requestNotificationPermission,
   sendTestNotification,
-  useScheduleReminders,
 } from '../hooks/useScheduleReminders'
 import { useSchedule } from '../hooks/useSchedule'
 import type { NotificationSettings } from '../types'
 import { DAY_LABELS, type DayKey } from '../types'
 import { DAY_INDEX_TO_KEY } from '../utils/schedule'
+import {
+  isIos,
+  isMobileDevice,
+  isStandalonePwa,
+} from '../utils/notifications'
 
 const cardClass = 'rounded-2xl bg-surface p-5 shadow-sm'
 
@@ -22,6 +27,7 @@ export default function NotificationsPage({ embedded }: { embedded?: boolean }) 
   const { birds } = useBirds(user?.uid)
   const { entries } = useAllBirdSchedules(birds)
   const { today, birdName } = useSchedule()
+  const { showInApp } = useReminderBanner()
   const [settings, setSettings] = useState<NotificationSettings>({
     enabled: false,
     userId: user?.uid ?? '',
@@ -33,6 +39,9 @@ export default function NotificationsPage({ embedded }: { embedded?: boolean }) 
   const [message, setMessage] = useState('')
 
   const reminders = getTodayRemindersPreview(entries)
+  const mobile = isMobileDevice()
+  const ios = isIos()
+  const standalone = isStandalonePwa()
 
   useEffect(() => {
     if (!user) return
@@ -50,8 +59,6 @@ export default function NotificationsPage({ embedded }: { embedded?: boolean }) 
     )
     return unsubSettings
   }, [user])
-
-  useScheduleReminders(settings.enabled, entries)
 
   const handleEnable = async () => {
     const granted = await requestNotificationPermission()
@@ -82,10 +89,25 @@ export default function NotificationsPage({ embedded }: { embedded?: boolean }) 
     <div>
       {!embedded && (
         <div className="mb-6">
-          <h2 className="text-xl font-bold text-text">Thông báo theo chế độ</h2>
+          <h2 className="text-xl font-bold text-text">Thông báo theo chế độ đi</h2>
           <p className="mt-1 text-sm text-text-muted">
             Nhắc đúng giờ phơi nắng và tắm theo chế độ từng chim.
           </p>
+        </div>
+      )}
+
+      {mobile && (
+        <div className="mb-4 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-text">
+          <p className="font-medium text-primary">Hướng dẫn trên điện thoại</p>
+          <ul className="mt-2 list-disc space-y-1 pl-4 text-text-muted">
+            <li>Bật thông báo và lưu cài đặt bên dưới.</li>
+            <li>
+              {ios && !standalone
+                ? 'iPhone: Safari → Chia sẻ → Thêm vào Màn hình chính, rồi mở app từ icon.'
+                : 'Thêm trang vào Màn hình chính để nhận thông báo tốt hơn.'}
+            </li>
+            <li>Giữ app mở hoặc ở nền — sẽ có banner + rung khi đến giờ.</li>
+          </ul>
         </div>
       )}
 
@@ -105,7 +127,7 @@ export default function NotificationsPage({ embedded }: { embedded?: boolean }) 
           </ul>
         ) : (
           <p className="text-sm text-text-muted">
-            Chưa có giờ phơi nắng/tắm hôm nay. Hãy điền giờ trong tab chế độ.
+            Chưa có giờ phơi nắng/tắm hôm nay. Hãy điền giờ trong tab Chế độ đi.
           </p>
         )}
       </div>
@@ -115,8 +137,8 @@ export default function NotificationsPage({ embedded }: { embedded?: boolean }) 
 
         {permission === 'denied' && (
           <div className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            Trình duyệt đã chặn thông báo. Vui lòng bật lại trong cài đặt trình
-            duyệt.
+            Trình duyệt đã chặn thông báo. Vào Cài đặt trình duyệt → cho phép thông
+            báo cho trang này.
           </div>
         )}
 
@@ -141,12 +163,12 @@ export default function NotificationsPage({ embedded }: { embedded?: boolean }) 
                 }
                 className="h-[18px] w-[18px] accent-primary"
               />
-              <span>Bật nhắc theo chế độ (phơi nắng, tắm)</span>
+              <span>Bật nhắc theo chế độ đi (phơi nắng, tắm)</span>
             </label>
 
             <p className="text-sm leading-relaxed text-text-muted">
-              Giữ tab mở hoặc ghim trang để nhận thông báo đúng giờ đã đặt trong
-              chế độ ({todayLabel}).
+              Nhắc tự động trên mọi trang khi đã bật ({todayLabel}). Trên điện thoại
+              sẽ kèm banner trong app và rung máy.
             </p>
 
             <div className="flex flex-wrap gap-3">
@@ -161,7 +183,7 @@ export default function NotificationsPage({ embedded }: { embedded?: boolean }) 
               {today && (
                 <button
                   type="button"
-                  onClick={() => sendTestNotification(today, birdName)}
+                  onClick={() => sendTestNotification(today, birdName, showInApp)}
                   className="rounded-xl border border-border bg-bg px-5 py-2.5 text-sm font-semibold text-text"
                 >
                   Gửi thử

@@ -6,8 +6,10 @@ import {
   type ReactNode,
 } from 'react'
 import {
+  browserLocalPersistence,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  setPersistence,
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
@@ -52,6 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = async (phone: string, password: string) => {
+    await setPersistence(auth, browserLocalPersistence)
     await signInWithEmailAndPassword(auth, phoneToAuthEmail(phone), password)
   }
 
@@ -60,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
     displayName: string,
   ) => {
+    await setPersistence(auth, browserLocalPersistence)
     const normalizedPhone = phoneToAuthEmail(phone).split('@')[0]
     const credential = await createUserWithEmailAndPassword(
       auth,
