@@ -141,13 +141,13 @@ export default function NotificationsPage({ embedded }: { embedded?: boolean }) 
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-text-muted">
+          <p className="text-sm text-text-muted ">
             Chưa có giờ phơi nắng/tắm hôm nay. Hãy điền giờ trong tab Chế độ đi.
           </p>
         )}
       </div>
 
-      <div className={`${cardClass} flex flex-col gap-4`}>
+      <div className={`${cardClass} flex flex-col gap-4 mt-4`}>
         <h3 className="font-semibold text-text">Cài đặt</h3>
 
         {permission === 'denied' && (

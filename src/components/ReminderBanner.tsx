@@ -1,8 +1,17 @@
+import { useEffect } from 'react'
 import { Bell, X } from './icons'
 import { useReminderBanner } from '../context/ReminderContext'
 
+const AUTO_DISMISS_MS = 4000
+
 export default function ReminderBanner() {
   const { active, dismiss } = useReminderBanner()
+
+  useEffect(() => {
+    if (!active) return
+    const timer = window.setTimeout(dismiss, AUTO_DISMISS_MS)
+    return () => window.clearTimeout(timer)
+  }, [active, dismiss])
 
   if (!active) return null
 

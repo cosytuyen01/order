@@ -1,14 +1,10 @@
 import { Link } from 'react-router-dom'
+import UserAvatar from './UserAvatar'
 import type { MemberSummary } from '../hooks/useMembers'
 
 interface MemberListSectionProps {
   members: MemberSummary[]
   loading: boolean
-}
-
-function memberInitial(name: string): string {
-  const trimmed = name.trim()
-  return trimmed ? trimmed.charAt(0).toUpperCase() : '?'
 }
 
 export default function MemberListSection({ members, loading }: MemberListSectionProps) {
@@ -55,9 +51,12 @@ export default function MemberListSection({ members, loading }: MemberListSectio
             to={`/thanh-vien/${member.id}`}
             className="flex w-[120px] shrink-0 flex-col items-center rounded-2xl bg-white px-3 py-4 shadow-sm transition hover:shadow-md active:scale-[0.98]"
           >
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-xl font-bold text-primary">
-              {memberInitial(member.displayName)}
-            </span>
+            <UserAvatar
+              avatarUrl={member.avatarUrl}
+              alt={member.displayName}
+              size="list"
+              className="ring-0"
+            />
             <p className="mt-2 w-full truncate text-center text-sm font-semibold text-text">
               {member.displayName}
             </p>

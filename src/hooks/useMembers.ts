@@ -8,6 +8,7 @@ export interface MemberSummary {
   id: string
   displayName: string
   phone: string
+  avatarUrl: string
   birdCount: number
 }
 
@@ -15,6 +16,7 @@ export interface MemberProfile {
   id: string
   displayName: string
   phone: string
+  avatarUrl: string
 }
 
 function mapMemberProfile(id: string, data: Record<string, unknown>): MemberProfile {
@@ -26,6 +28,7 @@ function mapMemberProfile(id: string, data: Record<string, unknown>): MemberProf
       phone,
     }),
     phone: phone ? formatPhoneDisplay(phone) : '',
+    avatarUrl: (data.avatarUrl as string) ?? '',
   }
 }
 

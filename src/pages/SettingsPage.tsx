@@ -1,11 +1,14 @@
 import { useNavigate } from 'react-router-dom'
-import { Bird } from '../components/icons'
 import { useAuth } from '../context/AuthContext'
+import InstallAppSection from '../components/InstallAppSection'
+import UserAvatar from '../components/UserAvatar'
+import { useMemberProfile } from '../hooks/useMembers'
 import { formatPhoneFromAuthEmail } from '../utils/phone'
 import NotificationsPage from './NotificationsPage'
 
 export default function SettingsPage() {
   const { user, logout } = useAuth()
+  const { member } = useMemberProfile(user?.uid)
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -17,9 +20,11 @@ export default function SettingsPage() {
     <div className="space-y-5">
       <div className="rounded-2xl border border-border bg-white p-4 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <Bird className="h-6 w-6" strokeWidth={2} />
-          </div>
+          <UserAvatar
+            avatarUrl={member?.avatarUrl}
+            alt={user?.displayName ?? 'Avatar'}
+            size="md"
+          />
           <div>
             <p className="font-semibold text-text">{user?.displayName}</p>
             <p className="text-sm text-text-muted">
@@ -28,6 +33,8 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
+
+      <InstallAppSection />
 
       <NotificationsPage embedded />
 

@@ -3,6 +3,7 @@ import { Calendar, NotebookPen } from '../components/icons'
 import { useAuth } from '../context/AuthContext'
 import { useBirds } from '../hooks/useBirds'
 import { useMemberProfile } from '../hooks/useMembers'
+import UserAvatar from '../components/UserAvatar'
 import { DEFAULT_BIRD_IMAGE, formatSeasons } from '../utils/bird'
 
 const cardClass = 'rounded-2xl bg-surface p-5 shadow-sm'
@@ -33,9 +34,11 @@ export default function MemberProfilePage() {
   return (
     <div className="space-y-5">
       <div className={`${cardClass} flex flex-col items-center text-center`}>
-        <span className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-3xl font-bold text-primary">
-          {member.displayName.charAt(0).toUpperCase()}
-        </span>
+        <UserAvatar
+          avatarUrl={member.avatarUrl}
+          alt={member.displayName}
+          size="lg"
+        />
         <h2 className="mt-3 text-xl font-bold text-text">{member.displayName}</h2>
         {member.phone && (
           <p className="mt-1 text-sm text-text-muted">{member.phone}</p>
