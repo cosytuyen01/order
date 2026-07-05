@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import DetailHero from '../components/detail/DetailHero'
+import SectionHeader from '../components/SectionHeader'
 import { Wheat } from '../components/icons'
 import { useAuth } from '../context/AuthContext'
 import { useBirds } from '../hooks/useBirds'
+import { HOME_BG } from '../utils/branding'
 
-const labelClass = 'flex flex-col gap-2 text-sm font-medium text-text-muted'
+const labelClass = 'flex flex-col gap-1.5 text-sm font-medium text-text-muted'
 const inputClass =
-  'rounded-xl border-0 bg-input-blue px-4 py-3 text-base text-text focus:ring-3 focus:ring-primary/15 focus:outline-none'
+  'w-full rounded-2xl border border-border/60 bg-input-blue px-4 py-3 text-base text-text transition focus:ring-3 focus:ring-primary/15 focus:outline-none'
 
 export default function AddBirdPage() {
   const navigate = useNavigate()
@@ -55,65 +58,82 @@ export default function AddBirdPage() {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-4 rounded-2xl border border-border/80 bg-white p-5 shadow-sm"
-    >
-      <label className={labelClass}>
-        Tên Chiến binh
-        <input
-          type="text"
-          className={inputClass}
-          placeholder="VD: Bổi Mặn, Bổi Chay,.."
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          autoFocus
-          required
-        />
-      </label>
+    <div className="bg-page">
+      <DetailHero
+        imageUrl={HOME_BG}
+        imageAlt="Thêm chiến binh"
+        title="Thêm chiến binh"
+        subtitle="Thêm chiến binh mới"
+      />
 
-      <label className={labelClass}>
-        Số mùa
-        <input
-          type="number"
-          min={0}
-          className="rounded-xl border-0 bg-input-beige px-4 py-3 text-base text-text focus:ring-3 focus:ring-primary/15 focus:outline-none"
-          placeholder="0"
-          value={seasons}
-          onChange={(e) => setSeasons(e.target.value)}
-        />
-        <span className="text-xs font-normal text-primary">{seasonHint}</span>
-      </label>
+      <div className="relative z-10 px-4 pb-2">
+        <form
+          onSubmit={handleSubmit}
+          className="card-modern -mt-30 flex flex-col gap-4 p-5 "
+        >
+          <SectionHeader title="Thông tin chiến binh" className="!mb-0" />
 
-      <label className={labelClass}>
-        <span className="inline-flex items-center gap-1.5">
-          <Wheat className="h-4 w-4 text-primary" strokeWidth={2} />
-          Cám đang dùng
-        </span>
-        <input
-          type="text"
-          className={inputClass}
-          placeholder="VD: Văn Toại 2N1, Thiên Điểu Ca..."
-          value={pellets}
-          onChange={(e) => setPellets(e.target.value)}
-        />
-      </label>
+          <label className={labelClass}>
+            Tên Chiến binh
+            <input
+              type="text"
+              className={inputClass}
+              placeholder="VD: Bổi Mặn, Bổi Chay,.."
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoFocus
+              required
+            />
+          </label>
 
-      <p className="text-xs text-text-muted">
-        Nhập <strong>0</strong> nếu Chiến binh là <strong>bổi rừng</strong>.
-      </p>
+          <label className={labelClass}>
+            Số mùa
+            <input
+              type="number"
+              min={0}
+              className={inputClass}
+              placeholder="0"
+              value={seasons}
+              onChange={(e) => setSeasons(e.target.value)}
+            />
+            {seasonHint && (
+              <span className="text-xs font-normal text-primary">{seasonHint}</span>
+            )}
+          </label>
 
-      {error && (
-        <p className="rounded-xl bg-primary/8 px-3 py-2 text-sm text-primary">{error}</p>
-      )}
+          <label className={labelClass}>
+            <span className="inline-flex items-center gap-1.5 text-text-muted">
+              <Wheat className="h-4 w-4 text-primary" strokeWidth={2} />
+              Cám đang dùng
+            </span>
+            <input
+              type="text"
+              className={inputClass}
+              placeholder="VD: Văn Toại 2N1, Thiên Điểu Ca..."
+              value={pellets}
+              onChange={(e) => setPellets(e.target.value)}
+            />
+          </label>
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full rounded-xl bg-primary py-3.5 text-base font-semibold text-white transition hover:bg-primary-dark disabled:opacity-60"
-      >
-        {submitting ? 'Đang lưu...' : 'Thêm chiến binh'}
-      </button>
-    </form>
+          <p className="text-xs text-text-muted">
+            Nhập <strong>0</strong> nếu Chiến binh là <strong>bổi rừng</strong>.
+          </p>
+
+          {error && (
+            <p className="rounded-2xl bg-primary/8 px-4 py-2.5 text-sm text-primary">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="btn-primary w-full disabled:opacity-60"
+          >
+            {submitting ? 'Đang lưu...' : 'Thêm chiến binh'}
+          </button>
+        </form>
+      </div>
+    </div>
   )
 }

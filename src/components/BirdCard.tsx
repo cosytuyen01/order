@@ -22,7 +22,7 @@ export default function BirdCard({ bird, onDelete, compact }: BirdCardProps) {
       className={[
         'relative block shrink-0 overflow-hidden bg-page transition active:scale-[0.98]',
         compact
-          ? 'w-[128px] rounded-3xl shadow-[var(--shadow-card)] hover:shadow-lg'
+          ? 'flex min-h-[194px] h-full w-[128px] flex-col rounded-3xl shadow-[var(--shadow-card)] hover:shadow-lg'
           : 'w-full rounded-3xl shadow-[var(--shadow-card)] hover:shadow-lg',
       ].join(' ')}
     >

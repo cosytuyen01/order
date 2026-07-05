@@ -14,6 +14,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const isAccountPage = pathname === '/settings'
   const isExpensesPage = pathname === '/chi-tieu'
   const isBirdsListPage = pathname === '/birds'
+  const isAddBirdPage = pathname === '/birds/new'
   const isSchedulePage = pathname === '/che-do-di'
   const isReferenceSchedulePage = Boolean(
     matchPath('/che-do-di/tham-khao/:birdId', pathname),
@@ -24,6 +25,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     isAccountPage ||
     isExpensesPage ||
     isBirdsListPage ||
+    isAddBirdPage ||
     isSchedulePage ||
     isReferenceSchedulePage
 

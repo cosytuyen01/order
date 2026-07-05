@@ -19,7 +19,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(true)
   const [error, setError] = useState('')
-  const [info, setInfo] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
   if (loading) return <LoadingScreen />
@@ -29,7 +28,6 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setInfo('')
 
     if (!isValidVietnamesePhone(phone)) {
       setError('Số điện thoại không hợp lệ. Nhập số VN 10 chữ số (VD: 0901234567).')
@@ -48,11 +46,6 @@ export default function LoginPage() {
     } finally {
       setSubmitting(false)
     }
-  }
-
-  const handleForgotPassword = () => {
-    setError('')
-    setInfo('Vui lòng liên hệ quản trị viên CLB để được hỗ trợ đặt lại mật khẩu.')
   }
 
   return (
@@ -106,23 +99,18 @@ export default function LoginPage() {
             />
             Ghi nhớ đăng nhập
           </label>
-          <button
+          {/* <button
             type="button"
             onClick={handleForgotPassword}
             className="font-medium text-primary transition hover:text-primary-dark"
           >
             Quên mật khẩu?
-          </button>
+          </button> */}
         </div>
 
         {error && (
           <p className="rounded-2xl bg-primary/8 px-4 py-2.5 text-sm text-primary">
             {error}
-          </p>
-        )}
-        {info && (
-          <p className="rounded-2xl bg-white px-4 py-2.5 text-sm text-text-muted ring-1 ring-primary/15">
-            {info}
           </p>
         )}
 

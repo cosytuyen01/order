@@ -16,7 +16,7 @@ function smoothstep(value: number) {
 
 const PAGE_META: { path: string; title: string; subtitle: string }[] = [
   { path: '/', title: 'Trang chủ', subtitle: 'Quản lý sinh hoạt CLB' },
-  { path: '/birds/new', title: 'Thêm chào mào', subtitle: 'Thêm chiến binh mới' },
+  { path: '/birds/new', title: 'Thêm chiến binh', subtitle: 'Thêm chiến binh mới' },
   { path: '/birds', title: 'Chiến binh của tôi', subtitle: 'Danh sách chiến binh' },
   { path: '/birds/:birdId', title: 'Chi tiết Chiến binh', subtitle: 'Thông tin chiến binh' },
   {

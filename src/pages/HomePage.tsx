@@ -20,6 +20,9 @@ const RECORD_META: Record<RecordType, { label: string; icon: LucideIcon }> = {
   'di-thi': { label: 'Đi thi', icon: RECORD_ICONS['di-thi'] },
 }
 
+const COMPACT_BIRD_CARD_SIZE =
+  'w-[128px] min-h-[194px] shrink-0 self-stretch'
+
 export default function HomePage() {
   const { user } = useAuth()
   const { birds, loading: birdsLoading } = useBirds(user?.uid)
@@ -49,11 +52,11 @@ export default function HomePage() {
       <section>
         <SectionHeader title="Chiến binh của tôi" linkTo="/birds" />
 
-        <div className="section-scroll">
+        <div className="section-scroll items-stretch">
           {birdsLoading ? (
             <>
-              <div className="h-[176px] w-[128px] shrink-0 animate-pulse rounded-3xl bg-white/70" />
-              <div className="h-[176px] w-[128px] shrink-0 animate-pulse rounded-3xl bg-white/70" />
+              <div className={`${COMPACT_BIRD_CARD_SIZE} animate-pulse rounded-3xl bg-white/70`} />
+              <div className={`${COMPACT_BIRD_CARD_SIZE} animate-pulse rounded-3xl bg-white/70`} />
             </>
           ) : (
             <>
@@ -62,7 +65,7 @@ export default function HomePage() {
               ))}
               <Link
                 to="/birds/new"
-                className="flex h-[176px] w-[128px] shrink-0 flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-primary/25 bg-white/60 text-primary transition hover:border-primary/40 hover:bg-primary/5"
+                className={`flex ${COMPACT_BIRD_CARD_SIZE} flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-primary/25 bg-white/60 px-3 py-6 text-primary transition hover:border-primary/40 hover:bg-primary/5`}
               >
                 <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
                   <Plus className="h-6 w-6" strokeWidth={2} />
