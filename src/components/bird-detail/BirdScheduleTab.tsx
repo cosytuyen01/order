@@ -14,7 +14,7 @@ import {
 
 const labelClass = 'flex flex-col gap-1.5 text-sm font-medium text-text-muted'
 const inputClass =
-  'rounded-xl border-0 bg-input-blue px-3 py-2.5 text-base text-text transition focus:ring-3 focus:ring-primary/15 focus:outline-none'
+  'rounded-2xl border border-border/60 bg-input-blue px-3 py-2.5 text-base text-text transition focus:ring-3 focus:ring-primary/15 focus:outline-none'
 
 interface BirdScheduleTabProps {
   birdId: string
@@ -91,7 +91,7 @@ export default function BirdScheduleTab({ birdId, birdName }: BirdScheduleTabPro
         {schedule.map((day) => (
           <div
             key={day.day}
-            className="overflow-hidden rounded-2xl bg-surface shadow-sm"
+            className="card-modern overflow-hidden"
           >
             <div className="flex items-center justify-between gap-2 bg-primary px-4 py-2.5">
               <span className="font-semibold text-white">{day.label}</span>
@@ -136,7 +136,7 @@ export default function BirdScheduleTab({ birdId, birdName }: BirdScheduleTabPro
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="w-full rounded-xl bg-primary py-3.5 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-60"
+          className="btn-primary w-full disabled:opacity-60"
         >
           {saving ? 'Đang lưu...' : 'Lưu chế độ'}
         </button>

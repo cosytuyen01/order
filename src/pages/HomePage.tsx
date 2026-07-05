@@ -5,6 +5,7 @@ import ReferenceScheduleSection from '../components/ReferenceScheduleSection'
 import MemberListSection from '../components/MemberListSection'
 import TodayScheduleSlider from '../components/TodayScheduleSlider'
 import BirdCard from '../components/BirdCard'
+import SectionHeader from '../components/SectionHeader'
 import { useBirds } from '../hooks/useBirds'
 import { useAllBirdSchedules } from '../hooks/useAllBirdSchedules'
 import { useReferenceSchedules } from '../hooks/useReferenceSchedules'
@@ -38,26 +39,21 @@ export default function HomePage() {
   const scheduleLoading = birdsLoading || schedulesLoading
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       {scheduleLoading ? (
-        <div className="h-48 animate-pulse rounded-2xl bg-white" />
+        <div className="h-52 animate-pulse rounded-3xl bg-white/60" />
       ) : (
         <TodayScheduleSlider slides={scheduleSlides} />
       )}
 
       <section>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-text">Chiến binh của tôi</h2>
-          <Link to="/birds" className="text-sm font-medium text-primary">
-            Xem tất cả &gt;
-          </Link>
-        </div>
+        <SectionHeader title="Chiến binh của tôi" linkTo="/birds" />
 
-        <div className="flex gap-3 overflow-x-auto pb-1">
+        <div className="section-scroll">
           {birdsLoading ? (
             <>
-              <div className="h-[168px] w-[120px] shrink-0 animate-pulse rounded-2xl bg-surface" />
-              <div className="h-[168px] w-[120px] shrink-0 animate-pulse rounded-2xl bg-surface" />
+              <div className="h-[176px] w-[128px] shrink-0 animate-pulse rounded-3xl bg-white/70" />
+              <div className="h-[176px] w-[128px] shrink-0 animate-pulse rounded-3xl bg-white/70" />
             </>
           ) : (
             <>
@@ -66,10 +62,12 @@ export default function HomePage() {
               ))}
               <Link
                 to="/birds/new"
-                className="flex h-[168px] w-[120px] shrink-0 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-primary/30 bg-surface text-primary transition hover:border-primary/50 hover:bg-primary/5"
+                className="flex h-[176px] w-[128px] shrink-0 flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-primary/25 bg-white/60 text-primary transition hover:border-primary/40 hover:bg-primary/5"
               >
-                <Plus className="h-8 w-8" strokeWidth={2} />
-                <span className="text-sm font-medium">Thêm chiến binh</span>
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+                  <Plus className="h-6 w-6" strokeWidth={2} />
+                </span>
+                <span className="text-xs font-semibold">Thêm chiến binh</span>
               </Link>
             </>
           )}
@@ -84,15 +82,10 @@ export default function HomePage() {
       />
 
       <section>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-text">Nhật ký gần đây</h2>
-          <Link to="/records" className="text-sm font-medium text-primary">
-            Xem tất cả &gt;
-          </Link>
-        </div>
+        <SectionHeader title="Nhật ký gần đây" linkTo="/records" />
 
         {recentRecords.slice(0, 3).length === 0 ? (
-          <div className="rounded-2xl bg-surface p-6 text-center text-sm text-text-muted shadow-sm">
+          <div className="card-modern p-6 text-center text-sm text-text-muted">
             Chưa có nhật ký nào.
           </div>
         ) : (
@@ -103,25 +96,25 @@ export default function HomePage() {
               return (
                 <div
                   key={record.id}
-                  className="flex items-center gap-3 rounded-2xl bg-surface p-3 shadow-sm"
+                  className="card-modern flex items-center gap-3.5 p-3.5"
                 >
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                     <RecordIcon className="h-5 w-5" strokeWidth={2} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-text">
+                    <p className="font-bold text-text">
                       {meta.label} · {record.birdName}
                     </p>
                     <p className="truncate text-sm text-text-muted">
                       {record.title}
                       {record.videoUrl ? ' · Có video' : ''}
                     </p>
-                    <p className="text-xs text-text-muted">
+                    <p className="mt-0.5 text-xs text-text-muted">
                       {new Date(record.date).toLocaleDateString('vi-VN')}
                     </p>
                   </div>
                   {record.notes && (
-                    <span className="shrink-0 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                    <span className="shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
                       {record.notes.slice(0, 12)}
                     </span>
                   )}

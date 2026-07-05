@@ -37,6 +37,7 @@ export interface ActivityRecord {
   type: RecordType
   title: string
   date: string
+  time?: string
   videoUrl: string
   notes: string
   birdId: string

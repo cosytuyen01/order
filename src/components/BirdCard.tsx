@@ -22,8 +22,8 @@ export default function BirdCard({ bird, onDelete, compact }: BirdCardProps) {
       className={[
         'relative block shrink-0 overflow-hidden bg-white transition active:scale-[0.98]',
         compact
-          ? 'w-[120px] rounded-2xl shadow-sm hover:ring-2 hover:ring-primary/20'
-          : 'w-full rounded-xl border border-border/80 shadow-sm hover:shadow-md',
+          ? 'w-[128px] rounded-3xl shadow-[var(--shadow-card)] hover:shadow-lg'
+          : 'w-full rounded-3xl shadow-[var(--shadow-card)] hover:shadow-lg',
       ].join(' ')}
     >
       {onDelete && (
@@ -31,8 +31,8 @@ export default function BirdCard({ bird, onDelete, compact }: BirdCardProps) {
           type="button"
           onClick={handleDelete}
           className={[
-            'absolute right-2 top-2 z-10 flex items-center justify-center rounded-full text-white',
-            compact ? 'h-6 w-6 bg-black/40' : 'h-7 w-7 bg-black/35 backdrop-blur-sm',
+            'absolute right-2.5 top-2.5 z-10 flex items-center justify-center rounded-full text-white backdrop-blur-sm',
+            compact ? 'h-7 w-7 bg-black/45' : 'h-8 w-8 bg-black/40',
           ].join(' ')}
         >
           <X className="h-3.5 w-3.5" strokeWidth={2.5} />
@@ -41,9 +41,7 @@ export default function BirdCard({ bird, onDelete, compact }: BirdCardProps) {
       <div
         className={[
           'overflow-hidden',
-          compact
-            ? 'aspect-square bg-gradient-to-br from-sky-100 to-blue-50'
-            : 'aspect-[4/3] bg-gray-100',
+          compact ? 'aspect-square bg-gradient-to-br from-sky-50 to-blue-100' : 'aspect-[4/3] bg-slate-100',
         ].join(' ')}
       >
         <img
@@ -52,18 +50,9 @@ export default function BirdCard({ bird, onDelete, compact }: BirdCardProps) {
           className="h-full w-full object-cover"
         />
       </div>
-      <div className={compact ? 'p-3 text-center' : 'space-y-1.5 p-3'}>
-        <p
-          className={[
-            'truncate font-semibold text-text',
-            compact ? '' : 'text-[15px]',
-          ].join(' ')}
-        >
-          {bird.name}
-        </p>
-        <span className="inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-          {formatSeasons(bird.seasons)}
-        </span>
+      <div className={compact ? 'p-3 text-center' : 'space-y-1.5 p-3.5'}>
+        <p className="truncate font-bold text-text">{bird.name}</p>
+        <span className="badge-pill">{formatSeasons(bird.seasons)}</span>
         {bird.pellets.trim() && !compact && (
           <p className="truncate text-xs text-text-muted">Cám: {bird.pellets}</p>
         )}

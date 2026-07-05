@@ -14,6 +14,7 @@ function mapRecord(id: string, item: Record<string, unknown>): ActivityRecord {
     type: item.type as ActivityRecord['type'],
     title: item.title as string,
     date: item.date as string,
+    time: (item.time as string) ?? '',
     videoUrl: (item.videoUrl as string) ?? (item.location as string) ?? '',
     notes: (item.notes as string) ?? '',
     birdId: (item.birdId as string) ?? '',

@@ -13,44 +13,50 @@ export default function TodayScheduleCard({ today, birdName }: TodayScheduleCard
   const hasCare = care && hasCareContent(care)
 
   return (
-    <div className="overflow-hidden rounded-2xl shadow-xs bg-white">
-      <div className="bg-primary px-4 py-3 rounded-t-2xl">
-        <h2 className="font-bold text-white">Chế độ hôm nay</h2>
-        <p className="text-xs text-white/80">
-          {birdName ? `${birdName} · ` : ''}
-          {today?.label ?? 'Hôm nay'}
-        </p>
+    <div className="glass-card overflow-hidden">
+      <div className="bg-gradient-to-r from-primary to-primary-light px-5 py-4">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <h2 className="text-lg font-bold text-white">Hôm nay</h2>
+            <p className="text-xs font-medium text-white/80">
+              {birdName ? `${birdName} · ` : ''}
+              {today?.label ?? 'Chế độ hôm nay'}
+            </p>
+          </div>
+          <span className="rounded-full bg-white/20 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+            Chế độ
+          </span>
+        </div>
       </div>
 
-      <div className="space-y-3 p-4">
+      <div className="space-y-3.5 p-5">
         {hasCare ? (
           CARE_ITEMS.map((item) => {
             const value = getCareDisplayValue(care, item.key)
             if (!value) return null
             const Icon = CARE_ICONS[item.key]
             return (
-              <div key={item.key} className="flex items-center gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Icon className="h-4 w-4" strokeWidth={2} />
+              <div key={item.key} className="flex items-center gap-3.5">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs text-text-muted">{item.label}</p>
-                  <p className="font-medium text-text">{value}</p>
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-text-muted">
+                    {item.label}
+                  </p>
+                  <p className="font-semibold text-text">{value}</p>
                 </div>
               </div>
             )
           })
         ) : (
           <p className="py-2 text-sm text-text-muted">
-            Chưa có Chế độ cho hôm nay. Hãy cập nhật Chế độ.
+            Chưa có chế độ cho hôm nay. Hãy cập nhật trong tab Chế độ.
           </p>
         )}
 
-        <Link
-          to="/che-do-di"
-          className="mt-2 block w-full rounded-xl bg-primary py-3 text-center text-sm font-semibold text-white transition hover:bg-primary-dark"
-        >
-          Xem Chế độ 7 ngày
+        <Link to="/che-do-di" className="btn-primary mt-1 block w-full">
+          Xem chế độ 7 ngày
         </Link>
       </div>
     </div>

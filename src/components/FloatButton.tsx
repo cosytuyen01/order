@@ -15,7 +15,7 @@ export default function FloatButton({
         type="button"
         onClick={onClick}
         aria-label={label}
-        className="pointer-events-auto absolute right-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-[0_4px_20px_rgba(26,115,232,0.45)] transition hover:bg-primary-dark active:scale-95"
+        className="pointer-events-auto absolute right-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-white shadow-[var(--shadow-float)] transition hover:bg-primary-dark active:scale-95"
       >
         <Plus className="h-7 w-7" strokeWidth={2.5} />
       </button>
