@@ -1,11 +1,8 @@
 import { Link } from 'react-router-dom'
-import { ClipboardList, ShoppingBag, UtensilsCrossed } from 'lucide-react'
+import { ClipboardList, ShoppingBag } from 'lucide-react'
 import SectionHeader from '../components/SectionHeader'
 import { useOwnerStore } from '../hooks/useOwnerStore'
 import { useOrders } from '../hooks/useOrders'
-import { useCategories } from '../hooks/useCategories'
-import { useProducts } from '../hooks/useProducts'
-import { useTables } from '../hooks/useTables'
 import { formatVnd } from '../utils/money'
 import {
   ORDER_STATUS_COLORS,
@@ -100,9 +97,6 @@ export default function DashboardPage() {
   const { orders, loading: ordersLoading, updateOrderStatus } = useOrders(
     store?.id,
   )
-  const { categories } = useCategories(store?.id)
-  const { products } = useProducts(store?.id)
-  const { tables } = useTables(store?.id)
 
   const today = new Date().toISOString().split('T')[0]
   const todayOrders = orders.filter((o) => o.createdAt.startsWith(today))
@@ -136,16 +130,6 @@ export default function DashboardPage() {
           value={formatVnd(todayRevenue)}
           icon={ShoppingBag}
           tone="green"
-        />
-        <StatCard
-          label="Danh mục / Món"
-          value={`${categories.length} / ${products.length}`}
-          icon={UtensilsCrossed}
-        />
-        <StatCard
-          label="Số bàn"
-          value={String(tables.length)}
-          icon={UtensilsCrossed}
         />
       </div>
 
