@@ -105,6 +105,7 @@ export default function TablesPage() {
   const [detailTableId, setDetailTableId] = useState<string | null>(null)
   const [detailName, setDetailName] = useState('')
   const [savingName, setSavingName] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   const handleClearTable = async (tableId: string) => {
     setClearingTableId(tableId)
@@ -119,6 +120,12 @@ export default function TablesPage() {
   const openDetail = (id: string, name: string) => {
     setDetailTableId(id)
     setDetailName(name)
+    setConfirmDelete(false)
+  }
+
+  const closeDetail = () => {
+    setDetailTableId(null)
+    setConfirmDelete(false)
   }
 
   const handleSaveName = async () => {
@@ -133,7 +140,7 @@ export default function TablesPage() {
 
   const handleDeleteTable = async (id: string) => {
     await removeTable(id)
-    setDetailTableId(null)
+    closeDetail()
   }
 
   const activeOrdersByTable = useMemo(() => {
@@ -302,7 +309,7 @@ export default function TablesPage() {
 
       <BottomSheet
         open={Boolean(detailTable)}
-        onClose={() => setDetailTableId(null)}
+        onClose={closeDetail}
         title={`Chi tiết ${detailTable?.name ?? 'bàn'}`}
       >
         {detailTable && (
@@ -353,28 +360,55 @@ export default function TablesPage() {
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  const id = detailTable.id
-                  setDetailTableId(null)
-                  setQrTableId(id)
-                }}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary/10 py-3 text-sm font-semibold text-primary"
-              >
-                <QrCode className="h-4 w-4" />
-                Xem mã QR
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDeleteTable(detailTable.id)}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-50 py-3 text-sm font-semibold text-red-600"
-              >
-                <Trash2 className="h-4 w-4" />
-                Xóa bàn
-              </button>
-            </div>
+            {confirmDelete ? (
+              <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
+                <p className="text-sm font-semibold text-red-700">
+                  Xóa {detailTable.name}?
+                </p>
+                <p className="mt-1 text-xs text-red-600/80">
+                  Hành động này không thể hoàn tác.
+                </p>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDelete(false)}
+                    className="flex-1 rounded-xl border border-border bg-white py-2.5 text-sm font-semibold text-brown"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteTable(detailTable.id)}
+                    className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm font-semibold text-white"
+                  >
+                    Xóa
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const id = detailTable.id
+                    closeDetail()
+                    setQrTableId(id)
+                  }}
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary/10 py-3 text-sm font-semibold text-primary"
+                >
+                  <QrCode className="h-4 w-4" />
+                  Xem mã QR
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(true)}
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-50 py-3 text-sm font-semibold text-red-600"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Xóa bàn
+                </button>
+              </div>
+            )}
           </div>
         )}
       </BottomSheet>
