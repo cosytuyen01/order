@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import {
   ChevronRight,
@@ -133,6 +133,15 @@ function CustomerMenuContent() {
 
   const activeCategories = categories.filter((c) => c.status === 'active')
   const activeProducts = products.filter((p) => p.status === 'active')
+  const orderedItemSummary = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const order of placedOrders) {
+      for (const item of order.items) {
+        map.set(item.productName, (map.get(item.productName) ?? 0) + item.quantity)
+      }
+    }
+    return Array.from(map.entries()).map(([name, quantity]) => ({ name, quantity }))
+  }, [placedOrders])
 
   const handleSubmitOrder = async () => {
     if (items.length === 0 || submitting) return
@@ -259,31 +268,27 @@ function CustomerMenuContent() {
                 <h2 className="text-sm font-bold text-brown">Món đã đặt của bàn này</h2>
               </div>
               <span className="inline-flex items-center gap-1 text-xs text-text-muted">
-                {placedOrders.length} đơn gần nhất
+                {orderedItemSummary.length} món đã đặt
                 <ChevronRight className="h-3.5 w-3.5" />
               </span>
             </div>
             <div className="border-t border-border/60 px-4 py-3">
-              {placedOrders.slice(0, 1).map((order) => (
-                <div key={order.id} className="rounded-xl bg-input-beige px-3 py-2.5">
-                  <div className="flex items-start gap-3">
-                    <div className="flex items-center gap-1 text-sm text-brown-light">
-                      <Clock3 className="h-4 w-4" />
-                      {new Date(order.createdAt).toLocaleTimeString('vi-VN')}
-                    </div>
-                    <div className="min-w-0 flex-1 border-l border-border/80 pl-3">
-                      <p className="text-sm text-brown">
-                        {order.items
-                          .map((item) => `${item.productName} x ${item.quantity}`)
-                          .join(', ')}
-                      </p>
-                      <p className="mt-1 text-xl font-bold text-primary">
-                        {formatVnd(order.total)}
-                      </p>
-                    </div>
-                  </div>
+              <div className="rounded-xl bg-input-beige px-3 py-2.5">
+                <div className="mb-2 flex items-center gap-1 text-sm text-brown-light">
+                  <Clock3 className="h-4 w-4" />
+                  Cập nhật: {new Date(placedOrders[0].createdAt).toLocaleTimeString('vi-VN')}
                 </div>
-              ))}
+                <div className="space-y-1 border-l border-border/80 pl-3">
+                  {orderedItemSummary.map((item) => (
+                    <p key={item.name} className="text-sm text-brown">
+                      {item.name} x {item.quantity}
+                    </p>
+                  ))}
+                  <p className="pt-1 text-xl font-bold text-primary">
+                    {formatVnd(placedOrders.reduce((sum, order) => sum + order.total, 0))}
+                  </p>
+                </div>
+              </div>
             </div>
           </section>
         )}
