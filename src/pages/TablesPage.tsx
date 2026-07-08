@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
-import { Check, Download, QrCode, Table2 } from 'lucide-react'
+import { Check, ChevronRight, Download, QrCode, Table2, Trash2 } from 'lucide-react'
 import DetailHero from '../components/detail/DetailHero'
 import FloatButton from '../components/FloatButton'
 import Modal from '../components/Modal'
+import BottomSheet from '../components/BottomSheet'
 import { useOwnerStore } from '../hooks/useOwnerStore'
 import { useOrders } from '../hooks/useOrders'
 import { clearTableCart, useTableCarts } from '../hooks/useTableCarts'
@@ -91,7 +92,9 @@ function TableActivity({
 
 export default function TablesPage() {
   const { store } = useOwnerStore()
-  const { tables, loading, addTable, removeTable } = useTables(store?.id)
+  const { tables, loading, addTable, updateTable, removeTable } = useTables(
+    store?.id,
+  )
   const { orders, clearTable } = useOrders(store?.id)
   const { cartsByTableId } = useTableCarts(store?.id)
 
@@ -99,6 +102,9 @@ export default function TablesPage() {
   const [tableName, setTableName] = useState('')
   const [qrTableId, setQrTableId] = useState<string | null>(null)
   const [clearingTableId, setClearingTableId] = useState<string | null>(null)
+  const [detailTableId, setDetailTableId] = useState<string | null>(null)
+  const [detailName, setDetailName] = useState('')
+  const [savingName, setSavingName] = useState(false)
 
   const handleClearTable = async (tableId: string) => {
     setClearingTableId(tableId)
@@ -108,6 +114,26 @@ export default function TablesPage() {
     } finally {
       setClearingTableId(null)
     }
+  }
+
+  const openDetail = (id: string, name: string) => {
+    setDetailTableId(id)
+    setDetailName(name)
+  }
+
+  const handleSaveName = async () => {
+    if (!detailTableId || !detailName.trim()) return
+    setSavingName(true)
+    try {
+      await updateTable(detailTableId, { name: detailName })
+    } finally {
+      setSavingName(false)
+    }
+  }
+
+  const handleDeleteTable = async (id: string) => {
+    await removeTable(id)
+    setDetailTableId(null)
   }
 
   const activeOrdersByTable = useMemo(() => {
@@ -136,6 +162,16 @@ export default function TablesPage() {
     store && selectedTable
       ? getTableMenuUrl(store.id, selectedTable.id)
       : ''
+
+  const detailTable = tables.find((t) => t.id === detailTableId)
+  const detailOrder = detailTable
+    ? activeOrdersByTable.get(detailTable.id)
+    : undefined
+  const detailCart =
+    detailTable && !detailOrder
+      ? cartsByTableId.get(detailTable.id)
+      : undefined
+  const detailBusy = Boolean(detailOrder || detailCart)
 
   const handleAdd = async () => {
     if (!tableName.trim()) return
@@ -170,7 +206,12 @@ export default function TablesPage() {
             const isBusy = Boolean(activeOrder || liveCart)
 
             return (
-              <div key={table.id} className="card-modern p-4">
+              <button
+                key={table.id}
+                type="button"
+                onClick={() => openDetail(table.id, table.name)}
+                className="card-modern w-full p-4 text-left transition active:scale-[0.99]"
+              >
                 <div className="flex items-center gap-3">
                   <div
                     className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-warning-bg text-primary"
@@ -190,23 +231,7 @@ export default function TablesPage() {
                     )}
                   </div>
 
-                  <div className="flex shrink-0 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setQrTableId(table.id)}
-                      className="flex items-center gap-1 rounded-xl bg-primary/10 px-3 py-2 text-xs font-semibold text-primary"
-                    >
-                      <QrCode className="h-4 w-4" />
-                      QR
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => removeTable(table.id)}
-                      className="rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-600"
-                    >
-                      Xóa
-                    </button>
-                  </div>
+                  <ChevronRight className="h-5 w-5 shrink-0 text-text-muted" />
                 </div>
 
                 {isBusy ? (
@@ -216,19 +241,7 @@ export default function TablesPage() {
                     Trống
                   </p>
                 )}
-
-                {isBusy && (
-                  <button
-                    type="button"
-                    onClick={() => handleClearTable(table.id)}
-                    disabled={clearingTableId === table.id}
-                    className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-600 py-2.5 text-sm font-semibold text-white transition disabled:opacity-60"
-                  >
-                    <Check className="h-4 w-4" />
-                    {clearingTableId === table.id ? 'Đang dọn...' : 'Bàn trống'}
-                  </button>
-                )}
-              </div>
+              </button>
             )
           })}
         </div>
@@ -286,6 +299,85 @@ export default function TablesPage() {
           </>
         )}
       </Modal>
+
+      <BottomSheet
+        open={Boolean(detailTable)}
+        onClose={() => setDetailTableId(null)}
+        title={`Chi tiết ${detailTable?.name ?? 'bàn'}`}
+      >
+        {detailTable && (
+          <div className="space-y-5">
+            <div className="rounded-2xl border border-border/60 bg-input-beige p-4">
+              {detailBusy ? (
+                <TableActivity order={detailOrder} cart={detailCart} />
+              ) : (
+                <p className="text-sm text-text-muted">Bàn đang trống</p>
+              )}
+            </div>
+
+            {detailBusy && (
+              <button
+                type="button"
+                onClick={() => handleClearTable(detailTable.id)}
+                disabled={clearingTableId === detailTable.id}
+                className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white transition disabled:opacity-60"
+              >
+                <Check className="h-4 w-4" />
+                {clearingTableId === detailTable.id ? 'Đang dọn...' : 'Bàn trống'}
+              </button>
+            )}
+
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-text-muted">
+                Tên bàn
+              </label>
+              <div className="flex gap-2">
+                <input
+                  className={inputClass}
+                  value={detailName}
+                  onChange={(e) => setDetailName(e.target.value)}
+                  placeholder="Tên bàn"
+                />
+                <button
+                  type="button"
+                  onClick={handleSaveName}
+                  disabled={
+                    savingName ||
+                    !detailName.trim() ||
+                    detailName.trim() === detailTable.name
+                  }
+                  className="shrink-0 rounded-2xl bg-primary px-4 text-sm font-semibold text-white transition disabled:opacity-50"
+                >
+                  {savingName ? 'Đang lưu...' : 'Lưu'}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const id = detailTable.id
+                  setDetailTableId(null)
+                  setQrTableId(id)
+                }}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary/10 py-3 text-sm font-semibold text-primary"
+              >
+                <QrCode className="h-4 w-4" />
+                Xem mã QR
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDeleteTable(detailTable.id)}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-50 py-3 text-sm font-semibold text-red-600"
+              >
+                <Trash2 className="h-4 w-4" />
+                Xóa bàn
+              </button>
+            </div>
+          </div>
+        )}
+      </BottomSheet>
     </div>
   )
 }

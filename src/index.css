@@ -34,6 +34,19 @@
   }
 }
 
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-sheet-up {
+  animation: sheet-up 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @layer components {
   .card-modern {
     @apply rounded-2xl border border-border/60 bg-surface shadow-[var(--shadow-card)];
