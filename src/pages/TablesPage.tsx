@@ -339,7 +339,7 @@ export default function TablesPage() {
               )}
             </div>
 
-            {detailOrder && (
+            {detailOrder && detailOrder.status !== 'paid' && (
               <div className="flex gap-2">
                 <button
                   type="button"
