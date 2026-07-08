@@ -161,24 +161,23 @@ export default function TablesPage() {
 
             return (
               <div key={table.id} className="card-modern p-4">
-                <div className="flex items-start gap-3">
+                <div className="flex items-center gap-3">
                   <div
-                    className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-warning-bg text-primary"
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-warning-bg text-primary"
                     aria-hidden
                   >
                     <Table2 className="h-6 w-6" strokeWidth={2} />
                   </div>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-lg font-bold text-brown">{table.name}</p>
-                      {isBusy && (
-                        <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-semibold text-orange-700">
-                          Đang đặt
-                        </span>
-                      )}
-                    </div>
-                    <TableActivity order={activeOrder} cart={liveCart} />
+                  <div className="flex min-w-0 flex-1 items-center gap-2">
+                    <p className="truncate text-lg font-bold text-brown">
+                      {table.name}
+                    </p>
+                    {isBusy && (
+                      <span className="shrink-0 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-semibold text-orange-700">
+                        Đang đặt
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex shrink-0 gap-2">
@@ -199,6 +198,14 @@ export default function TablesPage() {
                     </button>
                   </div>
                 </div>
+
+                {isBusy ? (
+                  <TableActivity order={activeOrder} cart={liveCart} />
+                ) : (
+                  <p className="mt-3 border-t border-border/50 pt-3 text-sm text-text-muted">
+                    Trống
+                  </p>
+                )}
 
                 {isBusy && (
                   <button
