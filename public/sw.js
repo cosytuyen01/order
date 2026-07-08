@@ -25,8 +25,8 @@ messaging.onBackgroundMessage((payload) => {
   const title = payload.notification?.title || payload.data?.title || 'OrderQR'
   const options = {
     body: payload.notification?.body || payload.data?.body || '',
-    icon: '/logochaomao.png',
-    badge: '/logochaomao.png',
+    icon: '/logo-orderqr.svg',
+    badge: '/logo-orderqr.svg',
     tag: payload.data?.tag || 'ccm-push',
     vibrate: [200, 100, 200],
     data: payload.data || {},

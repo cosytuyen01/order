@@ -31,7 +31,7 @@ export default function AuthLayout({
           <div className="mx-auto w-fit rounded-full p-1 shadow-[0_0_0_4px_rgba(255,255,255,0.35),0_8px_32px_rgba(37,99,235,0.25)]">
             <img
               src={APP_LOGO}
-              alt="Chào Chào Mao"
+              alt="OrderQR logo"
               className="h-24 w-24 rounded-full object-cover ring-2 ring-white/80"
             />
           </div>

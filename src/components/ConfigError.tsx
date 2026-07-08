@@ -2,6 +2,8 @@ import { getMissingFirebaseEnv } from '../env'
 
 export default function ConfigError() {
   const missing = getMissingFirebaseEnv()
+  const currentHost =
+    typeof window !== 'undefined' ? window.location.host : 'your-domain.vercel.app'
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-page p-6">
@@ -23,7 +25,7 @@ export default function ConfigError() {
           thêm các biến trên (copy từ `.env` local), rồi <strong>Redeploy</strong>.
         </p>
         <p className="mt-2 text-sm text-text-muted">
-          Trên Firebase Console, thêm domain <strong>chaomao.vercel.app</strong> vào
+          Trên Firebase Console, thêm domain <strong>{currentHost}</strong> vào
           Authentication → Settings → Authorized domains.
         </p>
       </div>
