@@ -10,7 +10,12 @@ import {
   where,
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
-import type { Order, OrderItem, OrderStatus } from '../types/store'
+import {
+  ACTIVE_TABLE_ORDER_STATUSES,
+  type Order,
+  type OrderItem,
+  type OrderStatus,
+} from '../types/store'
 
 function mapOrder(id: string, data: Record<string, unknown>): Order {
   return {
@@ -63,7 +68,56 @@ export function useOrders(storeId: string | undefined) {
     await updateDoc(doc(db, 'orders', id), { status })
   }
 
-  return { orders, loading, updateOrderStatus }
+  const clearTable = async (tableId: string) => {
+    const active = orders.filter(
+      (o) =>
+        o.tableId === tableId &&
+        ACTIVE_TABLE_ORDER_STATUSES.includes(o.status),
+    )
+    await Promise.all(
+      active.map((o) => updateDoc(doc(db, 'orders', o.id), { status: 'paid' })),
+    )
+  }
+
+  return { orders, loading, updateOrderStatus, clearTable }
+}
+
+export function useTableOrders(
+  storeId: string | undefined,
+  tableId: string | undefined,
+) {
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!storeId || !tableId) {
+      setOrders([])
+      setLoading(false)
+      return
+    }
+
+    const q = query(
+      collection(db, 'orders'),
+      where('storeId', '==', storeId),
+      where('tableId', '==', tableId),
+    )
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const data = snapshot.docs
+          .map((d) => mapOrder(d.id, d.data()))
+          .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+        setOrders(data)
+        setLoading(false)
+      },
+      () => setLoading(false),
+    )
+
+    return unsubscribe
+  }, [storeId, tableId])
+
+  return { orders, loading }
 }
 
 export async function createOrder(data: {

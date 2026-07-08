@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
-import { Download, QrCode, Table2 } from 'lucide-react'
+import { Check, Download, QrCode, Table2 } from 'lucide-react'
 import DetailHero from '../components/detail/DetailHero'
 import FloatButton from '../components/FloatButton'
 import Modal from '../components/Modal'
 import { useOwnerStore } from '../hooks/useOwnerStore'
 import { useOrders } from '../hooks/useOrders'
-import { useTableCarts } from '../hooks/useTableCarts'
+import { clearTableCart, useTableCarts } from '../hooks/useTableCarts'
 import { HOME_BG } from '../utils/branding'
 import { useTables } from '../hooks/useTables'
 import { getQrCodeUrl, getTableMenuUrl } from '../utils/qr'
@@ -92,12 +92,23 @@ function TableActivity({
 export default function TablesPage() {
   const { store } = useOwnerStore()
   const { tables, loading, addTable, removeTable } = useTables(store?.id)
-  const { orders } = useOrders(store?.id)
+  const { orders, clearTable } = useOrders(store?.id)
   const { cartsByTableId } = useTableCarts(store?.id)
 
   const [showForm, setShowForm] = useState(false)
   const [tableName, setTableName] = useState('')
   const [qrTableId, setQrTableId] = useState<string | null>(null)
+  const [clearingTableId, setClearingTableId] = useState<string | null>(null)
+
+  const handleClearTable = async (tableId: string) => {
+    setClearingTableId(tableId)
+    try {
+      await clearTable(tableId)
+      await clearTableCart(tableId).catch(() => {})
+    } finally {
+      setClearingTableId(null)
+    }
+  }
 
   const activeOrdersByTable = useMemo(() => {
     const map = new Map<string, Order>()
@@ -188,6 +199,18 @@ export default function TablesPage() {
                     </button>
                   </div>
                 </div>
+
+                {isBusy && (
+                  <button
+                    type="button"
+                    onClick={() => handleClearTable(table.id)}
+                    disabled={clearingTableId === table.id}
+                    className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-600 py-2.5 text-sm font-semibold text-white transition disabled:opacity-60"
+                  >
+                    <Check className="h-4 w-4" />
+                    {clearingTableId === table.id ? 'Đang dọn...' : 'Bàn trống'}
+                  </button>
+                )}
               </div>
             )
           })}

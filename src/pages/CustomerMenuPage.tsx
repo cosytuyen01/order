@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import {
-  ChevronRight,
+  BellRing,
   Clock3,
   Minus,
   Plus,
@@ -18,21 +18,35 @@ import { useStoreById } from '../hooks/useStore'
 import { useTableById } from '../hooks/useTables'
 import { useCategories } from '../hooks/useCategories'
 import { useProducts } from '../hooks/useProducts'
-import { createOrder } from '../hooks/useOrders'
+import { createOrder, useTableOrders } from '../hooks/useOrders'
 import { clearTableCart, useSyncTableCart } from '../hooks/useTableCarts'
 import { logStoreEvent } from '../hooks/useStoreEvents'
 import { formatVnd } from '../utils/money'
 import { HOME_BG } from '../utils/branding'
 import { getTableMenuUrl } from '../utils/qr'
+import {
+  ACTIVE_TABLE_ORDER_STATUSES,
+  ORDER_STATUS_COLORS,
+  ORDER_STATUS_LABELS,
+  type OrderStatus,
+} from '../types/store'
 
-interface LocalPlacedOrder {
-  id: string
-  createdAt: string
-  items: Array<{
-    productName: string
-    quantity: number
-  }>
-  total: number
+const STATUS_TOAST: Partial<Record<OrderStatus, string>> = {
+  confirmed: 'Cửa hàng đã nhận đơn của bạn ✅',
+  preparing: 'Cửa hàng đang chuẩn bị món của bạn 👨‍🍳',
+  done: 'Món của bạn đã sẵn sàng, mời thưởng thức 🎉',
+}
+
+const STAGE_ORDER: OrderStatus[] = ['pending', 'confirmed', 'preparing', 'done']
+
+function showSystemNotification(title: string, body: string) {
+  if (typeof Notification === 'undefined') return
+  if (Notification.permission !== 'granted') return
+  try {
+    new Notification(title, { body })
+  } catch {
+    // Some browsers only allow notifications from a service worker.
+  }
 }
 
 function CustomerMenuContent() {
@@ -48,7 +62,9 @@ function CustomerMenuContent() {
   const [customerNote, setCustomerNote] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [orderSuccess, setOrderSuccess] = useState(false)
-  const [placedOrders, setPlacedOrders] = useState<LocalPlacedOrder[]>([])
+  const [statusToast, setStatusToast] = useState<string | null>(null)
+
+  const { orders: tableOrders } = useTableOrders(storeId, tableId)
 
   const loading =
     storeLoading || tableLoading || categoriesLoading || productsLoading
@@ -105,31 +121,84 @@ function CustomerMenuContent() {
     return () => window.clearTimeout(timer)
   }, [store, table, totalItems, items])
 
-  useEffect(() => {
-    if (!store || !table) return
-    const historyKey = `placed_orders_${store.id}_${table.id}`
-    try {
-      const raw = sessionStorage.getItem(historyKey)
-      if (!raw) {
-        setPlacedOrders([])
-        return
-      }
-      const parsed = JSON.parse(raw) as LocalPlacedOrder[]
-      setPlacedOrders(Array.isArray(parsed) ? parsed : [])
-    } catch {
-      setPlacedOrders([])
-    }
-  }, [store, table])
+  const activeOrders = useMemo(
+    () =>
+      tableOrders.filter((o) =>
+        ACTIVE_TABLE_ORDER_STATUSES.includes(o.status),
+      ),
+    [tableOrders],
+  )
 
   const orderedItemSummary = useMemo(() => {
     const map = new Map<string, number>()
-    for (const order of placedOrders) {
+    for (const order of activeOrders) {
       for (const item of order.items) {
         map.set(item.productName, (map.get(item.productName) ?? 0) + item.quantity)
       }
     }
     return Array.from(map.entries()).map(([name, quantity]) => ({ name, quantity }))
-  }, [placedOrders])
+  }, [activeOrders])
+
+  const orderedTotal = useMemo(
+    () => activeOrders.reduce((sum, o) => sum + o.total, 0),
+    [activeOrders],
+  )
+
+  const currentStatus = useMemo<OrderStatus | null>(() => {
+    if (activeOrders.length === 0) return null
+    let minStage = STAGE_ORDER.length
+    for (const o of activeOrders) {
+      const idx = STAGE_ORDER.indexOf(o.status)
+      if (idx >= 0 && idx < minStage) minStage = idx
+    }
+    return minStage === STAGE_ORDER.length
+      ? activeOrders[0].status
+      : STAGE_ORDER[minStage]
+  }, [activeOrders])
+
+  const prevStatusRef = useRef<Map<string, OrderStatus>>(new Map())
+  const hadActiveRef = useRef(false)
+  const toastTimerRef = useRef<number | undefined>(undefined)
+
+  useEffect(() => {
+    const prev = prevStatusRef.current
+    const next = new Map<string, OrderStatus>()
+    let message: string | null = null
+
+    for (const o of tableOrders) {
+      next.set(o.id, o.status)
+      const before = prev.get(o.id)
+      if (before && before !== o.status && STATUS_TOAST[o.status]) {
+        message = STATUS_TOAST[o.status] ?? null
+      }
+    }
+
+    const hasActive = tableOrders.some((o) =>
+      ACTIVE_TABLE_ORDER_STATUSES.includes(o.status),
+    )
+
+    if (prev.size > 0) {
+      if (!message && hadActiveRef.current && !hasActive) {
+        message = 'Cảm ơn bạn đã ghé quán! Hẹn gặp lại 👋'
+      }
+      if (message) {
+        setStatusToast(message)
+        showSystemNotification(store?.name ?? 'Cửa hàng', message)
+        window.clearTimeout(toastTimerRef.current)
+        toastTimerRef.current = window.setTimeout(
+          () => setStatusToast(null),
+          6000,
+        )
+      }
+    }
+
+    prevStatusRef.current = next
+    hadActiveRef.current = hasActive
+  }, [tableOrders, store?.name])
+
+  useEffect(() => {
+    return () => window.clearTimeout(toastTimerRef.current)
+  }, [])
 
   if (loading) return <LoadingScreen message="Đang tải menu..." />
 
@@ -161,27 +230,19 @@ function CustomerMenuContent() {
         customerNote,
         total: totalPrice,
       })
-      const nextPlacedOrder: LocalPlacedOrder = {
-        id: `local_${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        items: items.map((i) => ({
-          productName: i.product.name,
-          quantity: i.quantity,
-        })),
-        total: totalPrice,
-      }
-      const nextHistory = [nextPlacedOrder, ...placedOrders].slice(0, 10)
-      setPlacedOrders(nextHistory)
-      sessionStorage.setItem(
-        `placed_orders_${store.id}_${table.id}`,
-        JSON.stringify(nextHistory),
-      )
       await clearTableCart(table.id)
       clearCart()
       setCustomerNote('')
       setShowCart(false)
       setOrderSuccess(true)
       setTimeout(() => setOrderSuccess(false), 4000)
+
+      if (
+        typeof Notification !== 'undefined' &&
+        Notification.permission === 'default'
+      ) {
+        void Notification.requestPermission().catch(() => {})
+      }
     } finally {
       setSubmitting(false)
     }
@@ -258,8 +319,17 @@ function CustomerMenuContent() {
         </div>
       )}
 
+      {statusToast && (
+        <div className="fixed inset-x-0 top-0 z-50 mx-auto max-w-[480px] px-4 pt-[max(0.75rem,env(safe-area-inset-top))]">
+          <div className="flex items-center gap-2.5 rounded-2xl bg-brown px-4 py-3 text-sm font-semibold text-white shadow-[var(--shadow-float)]">
+            <BellRing className="h-5 w-5 shrink-0 text-amber-300" />
+            <span>{statusToast}</span>
+          </div>
+        </div>
+      )}
+
       <main className="relative z-10 space-y-5 px-4 py-4">
-        {placedOrders.length > 0 && (
+        {activeOrders.length > 0 && (
           <section className="card-modern overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-2">
@@ -268,16 +338,19 @@ function CustomerMenuContent() {
                 </div>
                 <h2 className="text-sm font-bold text-brown">Món đã đặt của bàn này</h2>
               </div>
-              <span className="inline-flex items-center gap-1 text-xs text-text-muted">
-                {orderedItemSummary.length} món đã đặt
-                <ChevronRight className="h-3.5 w-3.5" />
-              </span>
+              {currentStatus && (
+                <span
+                  className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${ORDER_STATUS_COLORS[currentStatus]}`}
+                >
+                  {ORDER_STATUS_LABELS[currentStatus]}
+                </span>
+              )}
             </div>
             <div className="border-t border-border/60 px-4 py-3">
               <div className="rounded-xl bg-input-beige px-3 py-2.5">
                 <div className="mb-2 flex items-center gap-1 text-sm text-brown-light">
                   <Clock3 className="h-4 w-4" />
-                  Cập nhật: {new Date(placedOrders[0].createdAt).toLocaleTimeString('vi-VN')}
+                  Cập nhật: {new Date(activeOrders[0].createdAt).toLocaleTimeString('vi-VN')}
                 </div>
                 <div className="space-y-1 border-l border-border/80 pl-3">
                   {orderedItemSummary.map((item) => (
@@ -286,7 +359,7 @@ function CustomerMenuContent() {
                     </p>
                   ))}
                   <p className="pt-1 text-xl font-bold text-primary">
-                    {formatVnd(placedOrders.reduce((sum, order) => sum + order.total, 0))}
+                    {formatVnd(orderedTotal)}
                   </p>
                 </div>
               </div>
