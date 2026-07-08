@@ -121,6 +121,16 @@ function CustomerMenuContent() {
     }
   }, [store, table])
 
+  const orderedItemSummary = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const order of placedOrders) {
+      for (const item of order.items) {
+        map.set(item.productName, (map.get(item.productName) ?? 0) + item.quantity)
+      }
+    }
+    return Array.from(map.entries()).map(([name, quantity]) => ({ name, quantity }))
+  }, [placedOrders])
+
   if (loading) return <LoadingScreen message="Đang tải menu..." />
 
   if (!store || !table) {
@@ -133,15 +143,6 @@ function CustomerMenuContent() {
 
   const activeCategories = categories.filter((c) => c.status === 'active')
   const activeProducts = products.filter((p) => p.status === 'active')
-  const orderedItemSummary = useMemo(() => {
-    const map = new Map<string, number>()
-    for (const order of placedOrders) {
-      for (const item of order.items) {
-        map.set(item.productName, (map.get(item.productName) ?? 0) + item.quantity)
-      }
-    }
-    return Array.from(map.entries()).map(([name, quantity]) => ({ name, quantity }))
-  }, [placedOrders])
 
   const handleSubmitOrder = async () => {
     if (items.length === 0 || submitting) return
