@@ -28,7 +28,7 @@ import { formatVnd } from '../utils/money'
 import { HOME_BG } from '../utils/branding'
 import { getTableMenuUrl } from '../utils/qr'
 import {
-  ACTIVE_TABLE_ORDER_STATUSES,
+  isOpenOrder,
   ORDER_STATUS_COLORS,
   ORDER_STATUS_LABELS,
   type OrderStatus,
@@ -38,6 +38,7 @@ const STATUS_TOAST: Partial<Record<OrderStatus, string>> = {
   confirmed: 'Cửa hàng đã nhận đơn của bạn ✅',
   preparing: 'Cửa hàng đang chuẩn bị món của bạn 👨‍🍳',
   done: 'Món của bạn đã sẵn sàng, mời thưởng thức 🎉',
+  paid: 'Cửa hàng đã ghi nhận thanh toán 💳',
 }
 
 const STAGE_ORDER: OrderStatus[] = ['pending', 'confirmed', 'preparing', 'done']
@@ -125,10 +126,7 @@ function CustomerMenuContent() {
   }, [store, table, totalItems, items])
 
   const activeOrders = useMemo(
-    () =>
-      tableOrders.filter((o) =>
-        ACTIVE_TABLE_ORDER_STATUSES.includes(o.status),
-      ),
+    () => tableOrders.filter(isOpenOrder),
     [tableOrders],
   )
 
@@ -176,12 +174,10 @@ function CustomerMenuContent() {
       }
     }
 
-    const hasActive = tableOrders.some((o) =>
-      ACTIVE_TABLE_ORDER_STATUSES.includes(o.status),
-    )
+    const hasActive = tableOrders.some(isOpenOrder)
 
     if (prev.size > 0) {
-      if (!message && hadActiveRef.current && !hasActive) {
+      if (hadActiveRef.current && !hasActive) {
         message = 'Cảm ơn bạn đã ghé quán! Hẹn gặp lại 👋'
       }
       if (message) {

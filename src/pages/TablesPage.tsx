@@ -12,7 +12,7 @@ import { useTables } from '../hooks/useTables'
 import { getQrCodeUrl, getTableMenuUrl } from '../utils/qr'
 import { formatVnd } from '../utils/money'
 import {
-  ACTIVE_TABLE_ORDER_STATUSES,
+  isOpenOrder,
   ORDER_STATUS_COLORS,
   ORDER_STATUS_LABELS,
   type Order,
@@ -163,7 +163,7 @@ export default function TablesPage() {
   const activeOrdersByTable = useMemo(() => {
     const map = new Map<string, Order>()
     for (const order of orders) {
-      if (!ACTIVE_TABLE_ORDER_STATUSES.includes(order.status)) continue
+      if (!isOpenOrder(order)) continue
       if (!map.has(order.tableId)) {
         map.set(order.tableId, order)
       }

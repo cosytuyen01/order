@@ -82,6 +82,14 @@ export interface Order {
   status: OrderStatus
   total: number
   createdAt: string
+  cleared?: boolean
+}
+
+// An order keeps a table "occupied" until it is cancelled or the table is
+// cleared ("Bàn trống"). Paid orders stay open so customers can keep sitting
+// after paying.
+export function isOpenOrder(order: Order): boolean {
+  return order.status !== 'cancelled' && !order.cleared
 }
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {

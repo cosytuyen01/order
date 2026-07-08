@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import {
-  ACTIVE_TABLE_ORDER_STATUSES,
+  isOpenOrder,
   type Order,
   type OrderItem,
   type OrderStatus,
@@ -30,6 +30,7 @@ function mapOrder(id: string, data: Record<string, unknown>): Order {
     createdAt:
       (data.createdAt as { toDate?: () => Date })?.toDate?.()?.toISOString() ??
       String(data.createdAt ?? ''),
+    cleared: Boolean(data.cleared),
   }
 }
 
@@ -69,13 +70,14 @@ export function useOrders(storeId: string | undefined) {
   }
 
   const clearTable = async (tableId: string) => {
-    const active = orders.filter(
-      (o) =>
-        o.tableId === tableId &&
-        ACTIVE_TABLE_ORDER_STATUSES.includes(o.status),
-    )
+    const open = orders.filter((o) => o.tableId === tableId && isOpenOrder(o))
     await Promise.all(
-      active.map((o) => updateDoc(doc(db, 'orders', o.id), { status: 'paid' })),
+      open.map((o) =>
+        updateDoc(doc(db, 'orders', o.id), {
+          cleared: true,
+          ...(o.status === 'paid' ? {} : { status: 'paid' }),
+        }),
+      ),
     )
   }
 
