@@ -121,6 +121,16 @@ export default function TablesPage() {
     return map
   }, [orders])
 
+  const sortedTables = useMemo(() => {
+    const isBusyTable = (id: string) =>
+      activeOrdersByTable.has(id) || cartsByTableId.has(id)
+    return [...tables].sort((a, b) => {
+      const busyDiff = Number(isBusyTable(b.id)) - Number(isBusyTable(a.id))
+      if (busyDiff !== 0) return busyDiff
+      return a.name.localeCompare(b.name, 'vi')
+    })
+  }, [tables, activeOrdersByTable, cartsByTableId])
+
   const selectedTable = tables.find((t) => t.id === qrTableId)
   const menuUrl =
     store && selectedTable
@@ -154,7 +164,7 @@ export default function TablesPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {tables.map((table) => {
+          {sortedTables.map((table) => {
             const activeOrder = activeOrdersByTable.get(table.id)
             const liveCart = activeOrder ? undefined : cartsByTableId.get(table.id)
             const isBusy = Boolean(activeOrder || liveCart)

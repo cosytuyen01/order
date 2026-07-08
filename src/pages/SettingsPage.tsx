@@ -466,12 +466,14 @@ export default function SettingsPage() {
           </div>
         )}
 
-        <ActionRow
-          icon={LogOut}
-          label="Đăng xuất"
-          onClick={handleLogout}
-          danger
-        />
+        <div className="card-modern overflow-hidden">
+          <ActionRow
+            icon={LogOut}
+            label="Đăng xuất"
+            onClick={handleLogout}
+            danger
+          />
+        </div>
       </div>
     </div>
   )
