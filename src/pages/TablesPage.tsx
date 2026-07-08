@@ -130,6 +130,7 @@ export default function TablesPage() {
         imageAlt="Bàn"
         title="Quản lý bàn"
         subtitle={`${tables.length} bàn`}
+        showBack={false}
         compact
       />
 

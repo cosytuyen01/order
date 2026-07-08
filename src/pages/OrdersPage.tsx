@@ -161,6 +161,7 @@ export default function OrdersPage() {
         imageAlt="Đơn hàng"
         title="Đơn hàng"
         subtitle={store?.name ?? ''}
+        showBack={false}
         footer={
           <div className="section-scroll">
             {FILTERS.map((f) => (

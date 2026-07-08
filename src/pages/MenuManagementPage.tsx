@@ -117,6 +117,7 @@ export default function MenuManagementPage() {
         imageAlt="Menu"
         title="Quản lý menu"
         subtitle={store?.name ?? ''}
+        showBack={false}
         compact
         footer={
           <div className="flex gap-2 rounded-2xl bg-white p-1 shadow-sm">
