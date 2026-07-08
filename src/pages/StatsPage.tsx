@@ -69,18 +69,18 @@ function StatItem({
 }) {
   const t = STAT_TONES[tone]
   return (
-    <div className="card-modern flex items-center gap-3 p-4">
-      <div
-        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${t.chip}`}
-      >
-        <Icon className="h-5 w-5" strokeWidth={2} />
+    <div className="card-modern flex flex-col gap-3 p-4">
+      <div className="flex items-center justify-between gap-2">
+        <span className="min-w-0 truncate text-xs font-medium text-text-muted">
+          {label}
+        </span>
+        <div
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${t.chip}`}
+        >
+          <Icon className="h-4 w-4" strokeWidth={2} />
+        </div>
       </div>
-      <div className="min-w-0">
-        <p className="truncate text-xs font-medium text-text-muted">{label}</p>
-        <p className={`mt-0.5 truncate text-lg font-bold leading-tight ${t.value}`}>
-          {value}
-        </p>
-      </div>
+      <p className={`text-lg font-bold leading-tight ${t.value}`}>{value}</p>
     </div>
   )
 }
