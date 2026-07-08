@@ -24,7 +24,7 @@ export default function BottomSheet({
       role="presentation"
     >
       <div
-        className="animate-sheet-up flex max-h-[88vh] w-full max-w-[480px] flex-col overflow-hidden rounded-t-3xl bg-white pb-[env(safe-area-inset-bottom)] shadow-xl"
+        className="animate-sheet-up flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-3xl bg-white pb-[env(safe-area-inset-bottom)] shadow-xl"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
