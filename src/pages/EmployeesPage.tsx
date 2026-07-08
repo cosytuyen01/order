@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { ChevronLeft, PenSquare, Trash2, UserPlus, Users } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { PenSquare, Trash2, UserPlus, Users } from 'lucide-react'
 import DetailHero from '../components/detail/DetailHero'
 import { useAuth } from '../context/AuthContext'
 import { useEmployees } from '../hooks/useEmployees'
@@ -12,7 +11,6 @@ const inputClass =
   'w-full rounded-2xl border border-border/60 bg-input-blue px-4 py-3 text-base text-text transition focus:ring-3 focus:ring-primary/15 focus:outline-none'
 
 export default function EmployeesPage() {
-  const navigate = useNavigate()
   const { createEmployee } = useAuth()
   const { store, isOwner } = useOwnerStore()
   const {
@@ -114,18 +112,10 @@ export default function EmployeesPage() {
         imageAlt="Nhân viên"
         title="Nhân viên"
         subtitle={`${employees.length} nhân viên`}
+        compact
       />
 
       <div className="px-4">
-        <button
-          type="button"
-          onClick={() => navigate('/settings')}
-          className="mb-3 inline-flex items-center gap-1 text-sm font-semibold text-primary"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Quay lại tài khoản
-        </button>
-
         <div className="card-modern space-y-4 p-5">
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-primary" />

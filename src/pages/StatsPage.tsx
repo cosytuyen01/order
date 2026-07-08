@@ -62,6 +62,7 @@ export default function StatsPage() {
         imageAlt="Thống kê"
         title="Thống kê"
         subtitle={store?.name ?? 'Cửa hàng'}
+        compact
       />
 
       <div className="grid grid-cols-2 gap-3 px-4 pb-2">
