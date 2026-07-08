@@ -17,8 +17,16 @@ import {
   ORDER_STATUS_LABELS,
   type Order,
   type OrderItem,
+  type OrderStatus,
   type TableCart,
 } from '../types/store'
+
+const NEXT_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
+  pending: 'confirmed',
+  confirmed: 'preparing',
+  preparing: 'done',
+  done: 'paid',
+}
 
 const inputClass =
   'w-full rounded-2xl border border-border/60 bg-input-blue px-4 py-3 text-base text-text transition focus:ring-3 focus:ring-primary/15 focus:outline-none'
@@ -95,7 +103,7 @@ export default function TablesPage() {
   const { tables, loading, addTable, updateTable, removeTable } = useTables(
     store?.id,
   )
-  const { orders, clearTable } = useOrders(store?.id)
+  const { orders, clearTable, updateOrderStatus } = useOrders(store?.id)
   const { cartsByTableId } = useTableCarts(store?.id)
 
   const [showForm, setShowForm] = useState(false)
@@ -141,6 +149,15 @@ export default function TablesPage() {
   const handleDeleteTable = async (id: string) => {
     await removeTable(id)
     closeDetail()
+  }
+
+  const handleAdvanceOrder = async (order: Order) => {
+    const next = NEXT_STATUS[order.status]
+    if (next) await updateOrderStatus(order.id, next)
+  }
+
+  const handleCancelOrder = async (order: Order) => {
+    await updateOrderStatus(order.id, 'cancelled')
   }
 
   const activeOrdersByTable = useMemo(() => {
@@ -321,6 +338,28 @@ export default function TablesPage() {
                 <p className="text-sm text-text-muted">Bàn đang trống</p>
               )}
             </div>
+
+            {detailOrder && (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleCancelOrder(detailOrder)}
+                  className="flex-1 rounded-xl border border-border bg-white py-3 text-sm font-semibold text-brown transition"
+                >
+                  Hủy đơn
+                </button>
+                {NEXT_STATUS[detailOrder.status] && (
+                  <button
+                    type="button"
+                    onClick={() => handleAdvanceOrder(detailOrder)}
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary py-3 text-sm font-semibold text-white transition"
+                  >
+                    <Check className="h-4 w-4" />
+                    {ORDER_STATUS_LABELS[NEXT_STATUS[detailOrder.status]!]}
+                  </button>
+                )}
+              </div>
+            )}
 
             {detailBusy && (
               <button
