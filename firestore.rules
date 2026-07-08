@@ -6,64 +6,124 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function ownsStore(storeId) {
+      return isSignedIn()
+        && get(/databases/$(database)/documents/stores/$(storeId)).data.ownerId == request.auth.uid;
+    }
+
+    function isEmployeeOfStore(storeId) {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'employee'
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.storeId == storeId;
+    }
+
+    function canAccessStore(storeId) {
+      return ownsStore(storeId) || isEmployeeOfStore(storeId);
+    }
+
     match /users/{userId} {
       allow read: if isSignedIn();
-      allow create, update: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isSignedIn()
+        && (
+          request.auth.uid == userId
+          || (
+            request.resource.data.role == 'employee'
+            && request.resource.data.storeId is string
+            && ownsStore(request.resource.data.storeId)
+          )
+        );
+      allow update: if isSignedIn()
+        && (
+          (
+            request.auth.uid == userId
+            && request.resource.data.role == resource.data.role
+            && request.resource.data.storeId == resource.data.storeId
+          )
+          || (
+            resource.data.role == 'employee'
+            && resource.data.storeId is string
+            && ownsStore(resource.data.storeId)
+          )
+        );
 
       match /fcmTokens/{tokenId} {
         allow read, write: if isSignedIn() && request.auth.uid == userId;
       }
     }
 
-    match /reminderLogs/{logId} {
-      allow read, write: if false;
-    }
-
-    match /club/{docId} {
-      allow read, write: if isSignedIn();
-    }
-
-    match /expenseBudgets/{docId} {
-      allow read: if isSignedIn()
-        && (resource == null || resource.data.userId == request.auth.uid);
-      allow create, update: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
-    }
-
-    match /expenses/{expenseId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
-    }
-
-    match /records/{recordId} {
-      allow read: if isSignedIn();
+    match /stores/{storeId} {
+      allow read: if true;
       allow create: if isSignedIn()
-        && request.resource.data.ownerId == request.auth.uid
-        && get(/databases/$(database)/documents/birds/$(request.resource.data.birdId)).data.ownerId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+        && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if ownsStore(storeId);
     }
 
-    match /notificationSettings/{userId} {
-      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && canAccessStore(request.resource.data.storeId);
+      allow update, delete: if isSignedIn()
+        && canAccessStore(resource.data.storeId);
     }
 
-    match /birds/{birdId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && canAccessStore(request.resource.data.storeId);
+      allow update, delete: if isSignedIn()
+        && canAccessStore(resource.data.storeId);
     }
 
-    match /birdSchedules/{birdId} {
-      function ownsBird() {
-        return get(/databases/$(database)/documents/birds/$(birdId)).data.ownerId == request.auth.uid;
+    match /tables/{tableId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && canAccessStore(request.resource.data.storeId);
+      allow update, delete: if isSignedIn()
+        && canAccessStore(resource.data.storeId);
+    }
+
+    match /orders/{orderId} {
+      allow read: if isSignedIn()
+        && canAccessStore(resource.data.storeId);
+      allow create: if true;
+      allow update, delete: if isSignedIn()
+        && canAccessStore(resource.data.storeId);
+    }
+
+    match /storeEvents/{eventId} {
+      allow read: if isSignedIn()
+        && canAccessStore(resource.data.storeId);
+      allow create: if request.resource.data.keys().hasAll([
+          'storeId',
+          'tableId',
+          'tableName',
+          'type',
+          'title',
+          'body',
+          'createdAt',
+        ])
+        && request.resource.data.type in ['qr_scan', 'cart_update', 'new_order']
+        && exists(/databases/$(database)/documents/stores/$(request.resource.data.storeId));
+      allow update, delete: if false;
+    }
+
+    match /tableCarts/{tableId} {
+      function tableExists() {
+        return exists(/databases/$(database)/documents/tables/$(tableId));
       }
 
-      allow read: if isSignedIn();
-      allow create, update: if isSignedIn()
-        && request.resource.data.ownerId == request.auth.uid
-        && ownsBird();
-      allow delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      function tableStoreId() {
+        return get(/databases/$(database)/documents/tables/$(tableId)).data.storeId;
+      }
+
+      allow read: if isSignedIn()
+        && canAccessStore(resource.data.storeId);
+      allow create, update: if tableExists()
+        && request.resource.data.storeId == tableStoreId()
+        && request.resource.data.tableId == tableId;
+      allow delete: if tableExists()
+        && (resource == null || resource.data.storeId == tableStoreId());
     }
   }
 }

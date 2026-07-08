@@ -11,18 +11,18 @@ importScripts('https://www.gstatic.com/firebasejs/12.15.0/firebase-app-compat.js
 importScripts('https://www.gstatic.com/firebasejs/12.15.0/firebase-messaging-compat.js')
 
 firebase.initializeApp({
-  apiKey: 'AIzaSyAVrtcl_K9ksAZQu9YDiItBouX62FeIHvw',
-  authDomain: 'chao-mao-2b8a4.firebaseapp.com',
-  projectId: 'chao-mao-2b8a4',
-  storageBucket: 'chao-mao-2b8a4.firebasestorage.app',
-  messagingSenderId: '881867945123',
-  appId: '1:881867945123:web:ed1b1f8fac7a6bba4b7b16',
+  apiKey: 'AIzaSyDVbBN4eBG0OSKrqpp48qVF3ydFvpTaO6k',
+  authDomain: 'order-d54ce.firebaseapp.com',
+  projectId: 'order-d54ce',
+  storageBucket: 'order-d54ce.firebasestorage.app',
+  messagingSenderId: '503964038772',
+  appId: '1:503964038772:web:7a101615e461087fbb0321',
 })
 
 const messaging = firebase.messaging()
 
 messaging.onBackgroundMessage((payload) => {
-  const title = payload.notification?.title || payload.data?.title || 'Chào Mào'
+  const title = payload.notification?.title || payload.data?.title || 'OrderQR'
   const options = {
     body: payload.notification?.body || payload.data?.body || '',
     icon: '/logochaomao.png',
@@ -41,7 +41,7 @@ self.addEventListener('notificationclick', (event) => {
       if (clientList.length > 0) {
         return clientList[0].focus()
       }
-      return clients.openWindow('/')
+      return clients.openWindow('/orders')
     }),
   )
 })

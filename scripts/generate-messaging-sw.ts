@@ -30,7 +30,7 @@ firebase.initializeApp({
 const messaging = firebase.messaging()
 
 messaging.onBackgroundMessage((payload) => {
-  const title = payload.notification?.title || payload.data?.title || 'Chào Mào'
+  const title = payload.notification?.title || payload.data?.title || 'OrderQR'
   const options = {
     body: payload.notification?.body || payload.data?.body || '',
     icon: '/logochaomao.png',
@@ -49,7 +49,7 @@ self.addEventListener('notificationclick', (event) => {
       if (clientList.length > 0) {
         return clientList[0].focus()
       }
-      return clients.openWindow('/')
+      return clients.openWindow('/orders')
     }),
   )
 })

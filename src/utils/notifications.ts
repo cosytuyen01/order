@@ -55,7 +55,7 @@ export async function showSystemNotification(
   try {
     const registration = await navigator.serviceWorker?.ready
     if (registration?.showNotification) {
-      await registration.showNotification(`🐦 ${payload.title}`, options)
+      await registration.showNotification(payload.title, options)
       return true
     }
   } catch {
@@ -63,7 +63,7 @@ export async function showSystemNotification(
   }
 
   try {
-    new Notification(`🐦 ${payload.title}`, options)
+    new Notification(payload.title, options)
     return true
   } catch {
     return false

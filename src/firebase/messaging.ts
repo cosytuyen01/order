@@ -63,7 +63,7 @@ export function listenForForegroundPush(
     if (!supported || !isPushConfigured()) return
     const messaging = getMessaging(app)
     unsubscribe = onMessage(messaging, (payload) => {
-      const title = payload.notification?.title ?? payload.data?.title ?? 'Chào Mào'
+      const title = payload.notification?.title ?? payload.data?.title ?? 'OrderQR'
       const body = payload.notification?.body ?? payload.data?.body ?? ''
       const tag = payload.data?.tag ?? 'ccm-push'
       onPayload(title, body, tag)

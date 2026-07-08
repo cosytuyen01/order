@@ -14,7 +14,7 @@ export default function AuthLayout({
   footer,
 }: AuthLayoutProps) {
   return (
-    <div className="relative isolate flex min-h-[100dvh] flex-col overflow-hidden bg-[#e8f3ff]">
+    <div className="relative isolate flex min-h-[100dvh] flex-col overflow-hidden bg-page">
       <div
         className="pointer-events-none absolute inset-0 bg-cover bg-top bg-no-repeat"
         style={{ backgroundImage: `url(${HOME_BG})` }}
@@ -22,7 +22,7 @@ export default function AuthLayout({
       />
 
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-blue-900/15 to-transparent"
+        className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-[#fdf8f3]/40 to-transparent"
         aria-hidden
       />
 
@@ -35,15 +35,15 @@ export default function AuthLayout({
               className="h-24 w-24 rounded-full object-cover ring-2 ring-white/80"
             />
           </div>
-          <h1 className="mt-5 text-[1.75rem] font-bold tracking-tight text-white drop-shadow-[0_2px_12px_rgba(15,23,42,0.3)]">
+          <h1 className="mt-5 text-[1.75rem] font-bold tracking-tight text-brown">
             {title}
           </h1>
-          <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/95 drop-shadow-[0_1px_8px_rgba(15,23,42,0.25)]">
+          <p className="mt-2 max-w-xs text-sm leading-relaxed text-brown-light">
             {subtitle}
           </p>
         </div>
 
-        <div className="w-full max-w-[22rem] rounded-3xl bg-white p-6 shadow-[0_16px_48px_rgba(37,99,235,0.18)]">
+        <div className="w-full max-w-[22rem] rounded-2xl bg-white p-6 shadow-[0_16px_48px_rgba(61,35,20,0.1)]">
           {children}
         </div>
 

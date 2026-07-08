@@ -8,6 +8,7 @@ import {
 import {
   browserLocalPersistence,
   createUserWithEmailAndPassword,
+  getAuth,
   onAuthStateChanged,
   setPersistence,
   signInWithEmailAndPassword,
@@ -15,15 +16,32 @@ import {
   updateProfile,
   type User,
 } from 'firebase/auth'
-import { doc, setDoc } from 'firebase/firestore'
-import { auth, db } from '../firebase/config'
-import { phoneToAuthEmail } from '../utils/phone'
+import { deleteApp, getApps, initializeApp } from 'firebase/app'
+import { addDoc, collection, doc, serverTimestamp, setDoc } from 'firebase/firestore'
+import { auth, db, firebaseConfig } from '../firebase/config'
+import { isValidVietnamesePhone, phoneToAuthEmail } from '../utils/phone'
+
+interface RegisterData {
+  displayName: string
+  storeName: string
+  address: string
+}
 
 interface AuthContextType {
   user: User | null
   loading: boolean
   login: (phone: string, password: string) => Promise<void>
-  register: (phone: string, password: string, displayName: string) => Promise<void>
+  register: (
+    phone: string,
+    password: string,
+    data: RegisterData,
+  ) => Promise<void>
+  createEmployee: (data: {
+    storeId: string
+    displayName: string
+    phone: string
+    password: string
+  }) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -61,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (
     phone: string,
     password: string,
-    displayName: string,
+    data: RegisterData,
   ) => {
     await setPersistence(auth, browserLocalPersistence)
     const normalizedPhone = phoneToAuthEmail(phone).split('@')[0]
@@ -70,12 +88,67 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       phoneToAuthEmail(phone),
       password,
     )
-    await updateProfile(credential.user, { displayName })
-    await setDoc(doc(db, 'users', credential.user.uid), {
-      displayName,
+    await updateProfile(credential.user, { displayName: data.displayName })
+    const storeRef = await addDoc(collection(db, 'stores'), {
+      ownerId: credential.user.uid,
+      name: data.storeName.trim(),
       phone: normalizedPhone,
+      address: data.address.trim(),
+      status: 'active',
+      createdAt: serverTimestamp(),
+    })
+    await setDoc(doc(db, 'users', credential.user.uid), {
+      displayName: data.displayName,
+      phone: normalizedPhone,
+      role: 'owner',
+      storeId: storeRef.id,
       createdAt: new Date().toISOString(),
     })
+  }
+
+  const createEmployee = async ({
+    storeId,
+    displayName,
+    phone,
+    password,
+  }: {
+    storeId: string
+    displayName: string
+    phone: string
+    password: string
+  }) => {
+    if (!isValidVietnamesePhone(phone)) {
+      throw new Error('Số điện thoại không hợp lệ')
+    }
+
+    const secondaryAppName = `employee-${Date.now()}`
+    const secondaryApp = initializeApp(firebaseConfig, secondaryAppName)
+    const secondaryAuth = getAuth(secondaryApp)
+
+    try {
+      const credential = await createUserWithEmailAndPassword(
+        secondaryAuth,
+        phoneToAuthEmail(phone),
+        password,
+      )
+
+      await updateProfile(credential.user, {
+        displayName: displayName.trim(),
+      })
+
+      await setDoc(doc(db, 'users', credential.user.uid), {
+        displayName: displayName.trim(),
+        phone: phoneToAuthEmail(phone).split('@')[0],
+        role: 'employee',
+        storeId,
+        createdAt: new Date().toISOString(),
+      })
+    } finally {
+      await signOut(secondaryAuth).catch(() => undefined)
+      if (getApps().some((app) => app.name === secondaryAppName)) {
+        await deleteApp(secondaryApp).catch(() => undefined)
+      }
+    }
   }
 
   const logout = async () => {
@@ -83,7 +156,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, register, createEmployee, logout }}
+    >
       {children}
     </AuthContext.Provider>
   )

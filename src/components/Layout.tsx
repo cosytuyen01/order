@@ -1,53 +1,33 @@
 import BottomNav from './BottomNav'
 import PageHeader from './PageHeader'
-import ReminderBanner from './ReminderBanner'
-import ScheduleReminderWatcher from './ScheduleReminderWatcher'
+import NotificationBanner from './NotificationBanner'
 import PushNotificationSetup from './PushNotificationSetup'
-import { matchPath, useLocation } from 'react-router-dom'
+import StoreNotificationWatcher from './StoreNotificationWatcher'
+import { useLocation } from 'react-router-dom'
 import { HOME_BG } from '../utils/branding'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation()
   const isHome = pathname === '/'
-  const isBirdDetail = Boolean(matchPath('/birds/:birdId', pathname))
-  const isMemberDetail = Boolean(matchPath('/thanh-vien/:userId', pathname))
-  const isAccountPage = pathname === '/settings'
-  const isExpensesPage = pathname === '/chi-tieu'
-  const isBirdsListPage = pathname === '/birds'
-  const isAddBirdPage = pathname === '/birds/new'
-  const isSchedulePage = pathname === '/che-do-di'
-  const isReferenceSchedulePage = Boolean(
-    matchPath('/che-do-di/tham-khao/:birdId', pathname),
-  )
   const isFullBleedDetail =
-    isBirdDetail ||
-    isMemberDetail ||
-    isAccountPage ||
-    isExpensesPage ||
-    isBirdsListPage ||
-    isAddBirdPage ||
-    isSchedulePage ||
-    isReferenceSchedulePage
+    pathname === '/menu-management' ||
+    pathname === '/tables' ||
+    pathname === '/orders' ||
+    pathname === '/settings' ||
+    pathname === '/employees' ||
+    pathname === '/stats'
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-page pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]">
-      {isHome && (
-        <>
-          <div
-            className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[min(80vh,700px)] bg-cover bg-top"
-            style={{ backgroundImage: `url(${HOME_BG})` }}
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[min(80vh,700px)] bg-gradient-to-b from-black/15 via-black/0 to-page"
-            aria-hidden
-          />
-        </>
-      )}
+    <div className="relative flex min-h-screen flex-col pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]">
+      <div
+        className="pointer-events-none absolute inset-0 z-0 bg-cover bg-top bg-no-repeat"
+        style={{ backgroundImage: `url(${HOME_BG})` }}
+        aria-hidden
+      />
 
-      <ScheduleReminderWatcher />
+      <StoreNotificationWatcher />
       <PushNotificationSetup />
-      <ReminderBanner />
+      <NotificationBanner />
 
       {!isFullBleedDetail && (
         <div className="sticky top-0 z-40">
@@ -61,8 +41,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           isFullBleedDetail
             ? 'pb-5 pt-0'
             : isHome
-              ? '-mt-10 px-4 pb-5 pt-0 md:px-6'
-              : 'bg-page px-4 py-5 md:px-6',
+              ? '-mt-2 px-4 py-5 md:px-6'
+              : 'px-4 py-5 md:px-6',
         ].join(' ')}
       >
         {children}

@@ -1,4 +1,4 @@
-const PHONE_DOMAIN = 'phone.chaochamao.app'
+const PHONE_DOMAIN = 'phone.order.app'
 
 export function normalizePhone(input: string): string {
   const digits = input.replace(/\D/g, '')

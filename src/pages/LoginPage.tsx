@@ -50,8 +50,8 @@ export default function LoginPage() {
 
   return (
     <AuthLayout
-      title="Chào Mào"
-      subtitle="Nơi chiến binh tỏa sáng"
+      title="OrderQR"
+      subtitle="Quản lý menu & đặt món qua QR"
       footer={
         <span className="inline-flex items-center gap-1">
           Chưa có tài khoản?{' '}

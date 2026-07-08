@@ -10,6 +10,8 @@ import { isValidVietnamesePhone } from '../utils/phone'
 export default function RegisterPage() {
   const { user, register, loading } = useAuth()
   const [displayName, setDisplayName] = useState('')
+  const [storeName, setStoreName] = useState('')
+  const [address, setAddress] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -24,6 +26,10 @@ export default function RegisterPage() {
     e.preventDefault()
     setError('')
 
+    if (!storeName.trim()) {
+      setError('Vui lòng nhập tên cửa hàng.')
+      return
+    }
     if (!isValidVietnamesePhone(phone)) {
       setError('Số điện thoại không hợp lệ. Nhập số VN 10 chữ số (VD: 0901234567).')
       return
@@ -39,7 +45,11 @@ export default function RegisterPage() {
 
     setSubmitting(true)
     try {
-      await register(phone, password, displayName)
+      await register(phone, password, {
+        displayName,
+        storeName,
+        address,
+      })
     } catch {
       setError('Không thể đăng ký. Số điện thoại có thể đã được sử dụng.')
     } finally {
@@ -49,8 +59,8 @@ export default function RegisterPage() {
 
   return (
     <AuthLayout
-      title="Chào Mào"
-      subtitle="Tạo tài khoản thành viên CLB"
+      title="OrderQR"
+      subtitle="Đăng ký cửa hàng mới"
       footer={
         <span className="inline-flex items-center gap-1">
           Đã có tài khoản?{' '}
@@ -66,7 +76,7 @@ export default function RegisterPage() {
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <AuthField
-          label="Họ tên"
+          label="Họ tên chủ cửa hàng"
           icon="user"
           showClear
           type="text"
@@ -75,6 +85,25 @@ export default function RegisterPage() {
           onChange={(e) => setDisplayName(e.target.value)}
           placeholder="Nguyễn Văn A"
           required
+        />
+        <AuthField
+          label="Tên cửa hàng"
+          icon="user"
+          showClear
+          type="text"
+          value={storeName}
+          onChange={(e) => setStoreName(e.target.value)}
+          placeholder="Coffee ABC"
+          required
+        />
+        <AuthField
+          label="Địa chỉ"
+          icon="user"
+          showClear
+          type="text"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          placeholder="123 Nguyễn Huệ, Q.1, TP.HCM"
         />
         <AuthField
           label="Số điện thoại"
@@ -122,7 +151,7 @@ export default function RegisterPage() {
         >
           {submitting ? 'Đang đăng ký...' : (
             <>
-              Đăng ký
+              Tạo cửa hàng
               <ArrowRight className="h-5 w-5" strokeWidth={2.25} />
             </>
           )}

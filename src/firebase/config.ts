@@ -7,8 +7,9 @@ import {
   type Auth,
 } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
+import { getStorage } from 'firebase/storage'
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
@@ -31,4 +32,5 @@ function createAuth(): Auth {
 
 export const auth = createAuth()
 export const db = getFirestore(app)
+export const storage = getStorage(app)
 export default app

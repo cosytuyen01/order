@@ -1,11 +1,11 @@
 {
-  "name": "Chào Mào",
-  "short_name": "Chào Mao",
-  "description": "Quản lý sinh hoạt CLB Chào Mào",
+  "name": "OrderQR",
+  "short_name": "OrderQR",
+  "description": "Quản lý menu & đặt món qua QR",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f0f7ff",
-  "theme_color": "#2563eb",
+  "background_color": "#fdf8f3",
+  "theme_color": "#d3702d",
   "orientation": "portrait",
   "icons": [
     {
