@@ -13,22 +13,37 @@ import {
   type Order,
 } from '../types/store'
 
+const STAT_TONES = {
+  primary: { chip: 'bg-primary/12 text-primary', value: 'text-brown' },
+  green: { chip: 'bg-emerald-100 text-emerald-700', value: 'text-emerald-700' },
+  amber: { chip: 'bg-amber-100 text-amber-700', value: 'text-brown' },
+} as const
+
 function StatCard({
   label,
   value,
   icon: Icon,
+  tone = 'primary',
 }: {
   label: string
   value: string
   icon: typeof ShoppingBag
+  tone?: keyof typeof STAT_TONES
 }) {
+  const t = STAT_TONES[tone]
   return (
-    <div className="card-modern flex flex-col gap-2 p-4">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-text-muted">{label}</span>
-        <Icon className="h-4 w-4 text-primary" strokeWidth={2} />
+    <div className="card-modern flex items-center gap-3 p-4">
+      <div
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${t.chip}`}
+      >
+        <Icon className="h-5 w-5" strokeWidth={2} />
       </div>
-      <p className="text-xl font-bold text-text">{value}</p>
+      <div className="min-w-0">
+        <p className="truncate text-xs font-medium text-text-muted">{label}</p>
+        <p className={`mt-0.5 truncate text-lg font-bold leading-tight ${t.value}`}>
+          {value}
+        </p>
+      </div>
     </div>
   )
 }
@@ -120,6 +135,7 @@ export default function DashboardPage() {
           label="Doanh thu hôm nay"
           value={formatVnd(todayRevenue)}
           icon={ShoppingBag}
+          tone="green"
         />
         <StatCard
           label="Danh mục / Món"
